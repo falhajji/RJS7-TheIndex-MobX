@@ -1,13 +1,10 @@
 import React, { Component } from "react";
-import axios from "axios";
+import { observer } from "mobx-react";
 
 // Components
 import BookTable from "./BookTable";
 import Loading from "./Loading";
-
-const instance = axios.create({
-  baseURL: "https://the-index-api.herokuapp.com"
-});
+import authorStore from "./stores/authorStore";
 
 class AuthorDetail extends Component {
   state = {
@@ -16,32 +13,20 @@ class AuthorDetail extends Component {
   };
 
   componentDidMount() {
-    this.getAuthor();
+    authorStore.fetchAuthorByID(this.props.match.params.authorID);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.match.params.authorID !== this.props.match.params.authorID) {
-      this.getAuthor();
+      authorStore.fetchAuthorByID(this.props.match.params.authorID);
     }
   }
 
-  getAuthor = async () => {
-    const authorID = this.props.match.params.authorID;
-    this.setState({ loading: true });
-    try {
-      const res = await instance.get(`/api/authors/${authorID}`);
-      const author = res.data;
-      this.setState({ author: author, loading: false });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   render() {
-    if (this.state.loading) {
+    if (authorStore.loadingAuthor) {
       return <Loading />;
     } else {
-      const author = this.state.author;
+      const author = authorStore.author;
       const authorName = `${author.first_name} ${author.last_name}`;
       return (
         <div className="author">
@@ -60,4 +45,4 @@ class AuthorDetail extends Component {
   }
 }
 
-export default AuthorDetail;
+export default observer(AuthorDetail);

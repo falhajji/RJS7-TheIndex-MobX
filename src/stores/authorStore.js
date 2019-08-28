@@ -10,7 +10,11 @@ class AuthorStore {
 
   loading = true;
 
+  loadingAuthor = true;
+
   query = "";
+
+  author = null;
 
   fetchAuthors = async () => {
     try {
@@ -18,6 +22,18 @@ class AuthorStore {
       const authors = res.data;
       this.authors = authors;
       this.loading = false;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchAuthorByID = async authorID => {
+    try {
+      const res = await instance.get(`/api/authors/${authorID}/`);
+      const author = res.data;
+      this.author = author;
+      this.loading = false;
+      this.loadingAuthor = false;
     } catch (err) {
       console.error(err);
     }
@@ -37,6 +53,7 @@ class AuthorStore {
 decorate(AuthorStore, {
   authors: observable,
   loading: observable,
+  loadingAuthors: observable,
   query: observable,
   filteredAuthors: computed
 });
